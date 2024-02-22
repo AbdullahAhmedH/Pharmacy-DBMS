@@ -43,30 +43,39 @@
             border: 1px solid #ccc;
             border-top: none;
         }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 7px 0;
+            text-align: center;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
 <body>
 
+    <header>
+        <h1>Pharmacy Database</h1>
+    </header>
+
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'Page1')">Page 1</button>
-        <button class="tablinks" onclick="openTab(event, 'Page2')">Page 2</button>
-        <button class="tablinks" onclick="openTab(event, 'Page3')">Page 3</button>
+        <button class="tablinks" onclick="openTab(event, 'Page1')"><img src="mail.png" width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page2')"><img src="pill.png" width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page3')"><img src="billing.png" width="150px"></button>
     </div>
 
     <div id="Page1" class="tabcontent">
-        <h3>Page 1 Content</h3>
-        <p>This is the content of Page 1.</p>
+        <center><h3>NOTIFICATIONS</h3></center>
     </div>
 
     <div id="Page2" class="tabcontent">
-        <h3>Page 2 Content</h3>
-        <p>This is the content of Page 2.</p>
+        <center><h3>STOCK</h3></center>
     </div>
 
     <div id="Page3" class="tabcontent">
-        <h3>Page 3 Content</h3>
-        <p>This is the content of Page 3.</p>
+        <center><h3>BILLING</h3></center>
     </div>
 
     <script>
