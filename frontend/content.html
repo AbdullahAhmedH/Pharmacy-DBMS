@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabbed Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            width: 200px;
+            float: left;
+        }
+
+        .tab button {
+            display: block;
+            background-color: inherit;
+            color: black;
+            padding: 10px 20px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 7px 0;
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Pharmacy Database</h1>
+    </header>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Page1')"><img src="/frontend/img/mail.png" alt="Mail" width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page2')"><img src="/frontend/img/pill.png" alt= "Pill" width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page3')"><img src="/frontend/img/billing.png" alt = "Billing" width="150px"></button>
+    </div>
+
+    <div id="Page1" class="tabcontent">
+        <center><h3>NOTIFICATIONS</h3></center>
+    </div>
+
+    <div id="Page2" class="tabcontent">
+        <center><h3>STOCK</h3></center>
+    </div>
+
+    <div id="Page3" class="tabcontent">
+        <center><h3>BILLING</h3></center>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        // Show Page1 by default
+        document.getElementById("Page1").style.display = "block";
+    </script>
+
+</body>
+
+</html>
