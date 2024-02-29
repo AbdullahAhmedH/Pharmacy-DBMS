@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: Josefin Sans;
-            background-image:  linear-gradient(#ffc8dd 1px, transparent 1px), linear-gradient(to right, #ffc8dd 1px, #cdb4db 1px);
+            background-image: linear-gradient(#ffc8dd 1px, transparent 1px), linear-gradient(to right, #ffc8dd 1px, #cdb4db 1px);
             background-size: 20px 20px;
         }
 
@@ -49,6 +49,17 @@
         .login-container input[type="submit"]:hover {
             background-color: #315c85;
         }
+
+        .password-toggle {
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -56,12 +67,36 @@
     <br><br>
     <div class="login-container">
         <h1>Welcome</h1>
+
+        <!-- Display error message if it exists -->
+        {% if error %}
+        <p class="error-message">{{ error }}</p>
+        {% endif %}
+
         <form action="/login" method="post">
             <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <div class="password-toggle">
+                <input type="checkbox" id="showPassword">
+                <label for="showPassword">Show Password</label>
+            </div>
             <input type="submit" value="Login">
         </form>
     </div>
+
+    <script>
+        // JavaScript to toggle password visibility
+        const passwordInput = document.getElementById("password");
+        const showPasswordCheckbox = document.getElementById("showPassword");
+
+        showPasswordCheckbox.addEventListener("change", function () {
+            if (showPasswordCheckbox.checked) {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        });
+    </script>
 </body>
 
 </html>
