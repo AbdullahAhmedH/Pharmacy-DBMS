@@ -2,7 +2,7 @@ from flask import (Flask, redirect, render_template, request,
                    send_from_directory, url_for)
 from flask_mysqldb import MySQL
 
-app = Flask(__name__, static_folder='../frontend',template_folder='../frontend')
+app = Flask(__name__, static_folder='../frontend', template_folder='../frontend')
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -47,6 +47,12 @@ def index():
 def content():
     # This route represents the content page accessible after successful login
     return send_from_directory('../frontend', 'content.html')
+
+# Logout route
+@app.route('/logout')
+def logout():
+    # Redirect to the login page
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
