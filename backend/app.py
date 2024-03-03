@@ -1,4 +1,4 @@
-from flask import (Flask, redirect, render_template, request,
+from flask import (Flask, jsonify, redirect, render_template, request,
                    send_from_directory, url_for)
 from flask_mysqldb import MySQL
 
@@ -8,7 +8,7 @@ app = Flask(__name__, static_folder='../frontend', template_folder='../frontend'
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '1234'
-app.config['MYSQL_DB'] = 'your_mysql_database'
+app.config['MYSQL_DB'] = 'pharmacy'
 
 # Initialize MySQL
 mysql = MySQL(app)
@@ -53,6 +53,47 @@ def content():
 def logout():
     # Redirect to the login page
     return redirect(url_for('login'))
+
+# Endpoint to fetch notifications data
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    # Fetch notifications data from database (replace this with your database query)
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM notifs WHERE priority >=1")
+    notifications = cursor.fetchall()
+    return jsonify(notifications)
+
+# Endpoint to add a new notification
+@app.route('/api/add_notification', methods=['POST'])
+def add_notification():
+    # Receive new notification data from the request
+    new_notification = request.json
+    
+    # Insert new notification into database (replace this with your database insert operation)
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT MAX(Notif_id) FROM notifs")
+    next_sno = cursor.fetchall()[0][0];
+    if next_sno is None:
+        next_sno = 1
+    else:
+        next_sno+=1
+    cursor.execute("INSERT INTO notifs VALUES (%s, %s, %s)", (next_sno, new_notification['priority'], new_notification['detail']))
+    mysql.connection.commit()
+    response = {'message': 'Notification added successfully'}
+    return jsonify(response)
+
+# Endpoint to mark a notification as completed
+@app.route('/api/mark_as_completed', methods=['POST'])
+def mark_as_completed():
+    # Receive notification ID from the request
+    notification_id = request.json['notificationId']
+    
+    # Mark the notification as completed in the database
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE notifs SET Priority = 0 WHERE Notif_id = %s", (notification_id,))
+    mysql.connection.commit()
+    response = {'message': 'Notification marked as completed successfully'}
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True)
