@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabbed Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,6 +19,7 @@
             background-color: #f1f1f1;
             width: 200px;
             float: left;
+            height: 100%;
         }
 
         .tab button {
@@ -42,6 +44,7 @@
             padding: 20px;
             border: 1px solid #ccc;
             border-top: none;
+            margin-left: 201px
         }
 
         header {
@@ -60,6 +63,48 @@
             border: none;
             cursor: pointer;
         }
+
+        table {
+            border-collapse: collapse;
+            border: 1px solid #dddddd;
+            padding: 20px;
+            display: contents;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #555;
+            color: white;
+            font-size: 16px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #c4c4c4;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        th,
+        td {
+            border-radius: 5px;
+        }
+
+        .completed-btn {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -71,21 +116,72 @@
     </header>
 
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'Page1')"><img src="/frontend/img/mail.png" alt="Mail" width="150px"></button>
-        <button class="tablinks" onclick="openTab(event, 'Page2')"><img src="/frontend/img/pill.png" alt= "Pill" width="150px"></button>
-        <button class="tablinks" onclick="openTab(event, 'Page3')"><img src="/frontend/img/billing.png" alt = "Billing" width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page1')"><img src="/frontend/img/mail.png" alt="Mail"
+                width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page2')"><img src="/frontend/img/pill.png" alt="Pill"
+                width="150px"></button>
+        <button class="tablinks" onclick="openTab(event, 'Page3')"><img src="/frontend/img/billing.png" alt="Billing"
+                width="150px"></button>
     </div>
 
     <div id="Page1" class="tabcontent">
-        <center><h3>NOTIFICATIONS</h3></center>
+        <center>
+            <h3>NOTIFICATIONS</h3>
+        </center>
+        <div ng-controller="TableController1">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.no</th>
+                        <th>Details</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="notif in notifs | orderBy:'priority'">
+                        <td>{{$index + 1}}</td>
+                        <td
+                            ng-style="{'color': notif.priority == 1 ? 'red' : (notif.priority == 2 ? 'yellow' : 'green')}">
+                            {{ notif.detail }}</td>
+                        <td>
+                            <button class="completed-btn" ng-click="markAsCompleted(notif.notificationId)">
+                                Completed
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form ng-submit="addNotif()" style="padding-top: 10px;">
+                <input type="text" ng-model="newNotif.detail" placeholder="Task" required>
+            
+                <input type="radio" ng-model="newNotif.priority" value="1" id="priority1">
+                <label for="priority1" style="color: red;">High</label>
+            
+                <input type="radio" ng-model="newNotif.priority" value="2" id="priority2">
+                <label for="priority2" style="color: #FFD700;">Medium</label>
+            
+                <input type="radio" ng-model="newNotif.priority" value="3" id="priority3">
+                <label for="priority3" style="color: green;">Low</label>
+            
+                <button type="submit">Add Task</button>
+            </form>
+            
+
+        </div>
     </div>
 
+
     <div id="Page2" class="tabcontent">
-        <center><h3>STOCK</h3></center>
+        <center>
+            <h3>STOCK</h3>
+        </center>
     </div>
 
     <div id="Page3" class="tabcontent">
-        <center><h3>BILLING</h3></center>
+        <center>
+            <h3>BILLING</h3>
+        </center>
     </div>
 
     <script>
@@ -102,8 +198,55 @@
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
         }
-        // Show Page1 by default
         document.getElementById("Page1").style.display = "block";
+
+        var app = angular.module('myApp', []);
+
+        app.controller('TableController1', function ($scope, $http) {
+            function fetchNotifications() {
+                $http.get('/api/notifications')
+                    .then(function (response) {
+                        angular.forEach(response.data, function (item, index) {
+                            item.number = index + 1;
+                            item.notificationId = item[0];
+                            item.priority = item[1];
+                            item.detail = item[2];
+                        });
+                        $scope.notifs = response.data;
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching notifications:', error);
+                    });
+            }
+
+            fetchNotifications();
+
+            $scope.addNotif = function () {
+                var newData = {
+                    detail: $scope.newNotif.detail,
+                    priority: $scope.newNotif.priority
+                };
+
+                $http.post('/api/add_notification', newData)
+                    .then(function (response) {
+                        fetchNotifications();
+                        $scope.newNotif = {};
+                    })
+                    .catch(function (error) {
+                        console.error('Error adding notification:', error);
+                    });
+            };
+
+            $scope.markAsCompleted = function (notificationId) {
+                $http.post('/api/mark_as_completed', { notificationId: notificationId })
+                    .then(function (response) {
+                        fetchNotifications();
+                    })
+                    .catch(function (error) {
+                        console.error('Error marking as completed:', error);
+                    });
+            };
+        });
     </script>
 
 </body>
