@@ -154,29 +154,46 @@
 
             <form ng-submit="addNotif()" style="padding-top: 10px;">
                 <input type="text" ng-model="newNotif.detail" placeholder="Task" required>
-            
+
                 <input type="radio" ng-model="newNotif.priority" value="1" id="priority1">
                 <label for="priority1" style="color: red;">High</label>
-            
+
                 <input type="radio" ng-model="newNotif.priority" value="2" id="priority2">
                 <label for="priority2" style="color: #FFD700;">Medium</label>
-            
+
                 <input type="radio" ng-model="newNotif.priority" value="3" id="priority3">
                 <label for="priority3" style="color: green;">Low</label>
-            
+
                 <button type="submit">Add Task</button>
             </form>
-            
+
 
         </div>
     </div>
 
 
     <div id="Page2" class="tabcontent">
-        <center>
-            <h3>STOCK</h3>
-        </center>
+        <div>
+            <button class="tablinks" onclick="openSubTab(event, 'Tab1')">Doctors</button>
+            <button class="tablinks" onclick="openSubTab(event, 'Tab2')">Medicine</button>
+            <button class="tablinks" onclick="openSubTab(event, 'Tab3')">Batch</button>
+        </div>
+        <div>
+            <!-- Tab 1 -->
+            <div id="Tab1" style="display: none;">
+                <h3>Doctors</h3>
+            </div>
+            <!-- Tab 2 -->
+            <div id="Tab2" style="display: none;">
+                <h3>Medicine</h3>
+            </div>
+            <!-- Tab 3 -->
+            <div id="Tab3" style="display: none;">
+                <h3>Batch</h3>
+            </div>
+        </div>
     </div>
+
 
     <div id="Page3" class="tabcontent">
         <center>
@@ -247,6 +264,23 @@
                     });
             };
         });
+
+        function openSubTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.querySelectorAll('#Page2 > div > div');
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        openSubTab(event, 'Tab1');
+
+
     </script>
 
 </body>
