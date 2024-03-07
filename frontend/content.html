@@ -105,6 +105,68 @@
             cursor: pointer;
             border-radius: 5px;
         }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .edit-btn {
+            background-color: orchid;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            display: none;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content.show {
+            display: block;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -167,33 +229,68 @@
                 <button type="submit">Add Task</button>
             </form>
 
-
         </div>
     </div>
 
 
     <div id="Page2" class="tabcontent">
         <div>
-            <button class="tablinks" onclick="openSubTab(event, 'Tab1')">Doctors</button>
-            <button class="tablinks" onclick="openSubTab(event, 'Tab2')">Medicine</button>
-            <button class="tablinks" onclick="openSubTab(event, 'Tab3')">Batch</button>
+            <button class="tablinks" id="tab1Button">Doctors</button>
+            <button class="tablinks" id="tab2Button">Medicine</button>
+            <button class="tablinks" id="tab3Button">Batch</button>
         </div>
         <div>
-            <!-- Tab 1 -->
             <div id="Tab1" style="display: none;">
                 <h3>Doctors</h3>
+                <div ng-controller="TableController2">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Doctor ID</th>
+                                <th>Name</th>
+                                <th>Mobile Number</th>
+                                <th>Work Address</th>
+                                <th>Speciality</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="doc in doctor | orderBy:'doc_id'">
+                                <td>{{ doc.doc_id }}</td>
+                                <td>{{ doc.doc_name }}</td>
+                                <td>{{ doc.doc_mobile }}</td>
+                                <td>{{ doc.doc_work_address }}</td>
+                                <td>{{ doc.doc_speciality }}</td>
+                                <td>
+                                    <button class="delete-btn" ng-click="deleteDoctor(doc.doc_id)">
+                                        Delete
+                                    </button>
+                                    <button class="edit-btn" ng-click="editDoctor(doc.doc_id)">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Add New Doctor</h3>
+                    <input type="text" ng-model="newDoc.doc_id" placeholder="Doctor ID" required><br>
+                    <input type="text" ng-model="newDoc.doc_name" placeholder="Name" required><br>
+                    <input type="text" ng-model="newDoc.doc_mobile" placeholder="Mobile Number" required
+                        ng-pattern="/^\d{10}$/" ng-maxlength="10" ng-minlength="10"><br>
+                    <input type="text" ng-model="newDoc.doc_work_address" placeholder="Work Address" required><br>
+                    <input type="text" ng-model="newDoc.doc_speciality" placeholder="Speciality" required><br>
+                    <button ng-click="addDoctor()">Add Doctor</button>
+
+                </div>
             </div>
-            <!-- Tab 2 -->
             <div id="Tab2" style="display: none;">
                 <h3>Medicine</h3>
             </div>
-            <!-- Tab 3 -->
             <div id="Tab3" style="display: none;">
                 <h3>Batch</h3>
             </div>
         </div>
     </div>
-
 
     <div id="Page3" class="tabcontent">
         <center>
@@ -278,8 +375,62 @@
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
         }
-        openSubTab(event, 'Tab1');
 
+        document.getElementById('tab1Button').addEventListener('click', function (event) {
+            openSubTab(event, 'Tab1');
+        });
+        document.getElementById('tab2Button').addEventListener('click', function (event) {
+            openSubTab(event, 'Tab2');
+        });
+        document.getElementById('tab3Button').addEventListener('click', function (event) {
+            openSubTab(event, 'Tab3');
+        });
+
+        app.controller('TableController2', function ($scope, $http) {
+            function fetchDoctors() {
+                $http.get('/api/doctor')
+                    .then(function (response) {
+                        var transformedData = [];
+                        angular.forEach(response.data, function (item) {
+                            var doctor = {
+                                doc_id: item[0],
+                                doc_name: item[1],
+                                doc_mobile: item[2],
+                                doc_work_address: item[3],
+                                doc_speciality: item[4]
+                            };
+                            transformedData.push(doctor);
+                        });
+                        $scope.doctor = transformedData;
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching doctors:', error);
+                    });
+            }
+            fetchDoctors();
+            $scope.addDoctor = function () {
+                var newDoctorData = {
+                    doc_id: $scope.newDoc.doc_id,
+                    doc_name: $scope.newDoc.doc_name,
+                    doc_mobile: $scope.newDoc.doc_mobile,
+                    doc_work_address: $scope.newDoc.doc_work_address,
+                    doc_speciality: $scope.newDoc.doc_speciality
+                };
+
+                $http.post('/api/add_doctor', newDoctorData)
+                    .then(function (response) {
+                        if (response.data.message == 'Doctor with ID already exists') {
+                            alert('Doctor with ID already exists')
+                        };
+                        fetchDoctors();
+                        $scope.newDoc = {};
+                    })
+                    .catch(function (error) {
+                        console.error('Error adding doctor:', error);
+                    });
+            };
+
+        });
 
     </script>
 

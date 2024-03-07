@@ -95,5 +95,29 @@ def mark_as_completed():
     response = {'message': 'Notification marked as completed successfully'}
     return jsonify(response)
 
+@app.route('/api/doctor', methods=['GET'])
+def get_doctors():
+    # Fetch doctors data from database (replace this with your database query)
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM doctor")
+    doctors = cursor.fetchall()
+    return jsonify(doctors)
+
+@app.route('/api/add_doctor', methods=['POST'])
+def add_doctor():
+    new_doctor = request.json
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT doc_id FROM doctor")
+    doc_ids = [res[0] for res in cursor.fetchall()]
+    print(new_doctor,doc_ids)
+    if int(new_doctor['doc_id']) in doc_ids:
+        response = {'message': 'Doctor with ID already exists'}
+        return jsonify(response)
+    else:
+        cursor.execute("INSERT INTO doctor VALUES (%s, %s, %s, %s, %s)", (new_doctor['doc_id'],new_doctor['doc_name'], new_doctor['doc_mobile'], new_doctor['doc_work_address'], new_doctor['doc_speciality']))
+        mysql.connection.commit()
+        response = {'message': 'Doctor added successfully'}
+        return jsonify(response)
+
 if __name__ == '__main__':
     app.run(debug=True)
