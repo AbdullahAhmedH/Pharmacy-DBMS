@@ -236,8 +236,9 @@
     <div id="Page2" class="tabcontent">
         <div>
             <button class="tablinks" id="tab1Button">Doctors</button>
-            <button class="tablinks" id="tab2Button">Medicine</button>
+            <button class="tablinks" id="tab2Button">Suppliers</button>
             <button class="tablinks" id="tab3Button">Batch</button>
+            <button class="tablinks" id="tab4Button">Medicine</button>
         </div>
         <div>
             <div id="Tab1" style="display: none;">
@@ -265,9 +266,6 @@
                                     <button class="delete-btn" ng-click="deleteDoctor(doc.doc_id)">
                                         Delete
                                     </button>
-                                    <button class="edit-btn" ng-click="editDoctor(doc.doc_id)">
-                                        Edit
-                                    </button>
                                 </td>
                             </tr>
                         </tbody>
@@ -280,14 +278,45 @@
                     <input type="text" ng-model="newDoc.doc_work_address" placeholder="Work Address" required><br>
                     <input type="text" ng-model="newDoc.doc_speciality" placeholder="Speciality" required><br>
                     <button ng-click="addDoctor()">Add Doctor</button>
-
                 </div>
             </div>
             <div id="Tab2" style="display: none;">
-                <h3>Medicine</h3>
+                <h3>Suppliers</h3>
+                <div ng-controller="TableController3">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Supplier ID</th>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="sup in supplier | orderBy:'supplier_id'">
+                                <td>{{ sup.supplier_id }}</td>
+                                <td>{{ sup.supplier_name }}</td>
+                                <td>{{ sup.supplier_location }}</td>
+                                <td>
+                                    <button class="delete-btn" ng-click="deleteSupplier(sup.supplier_id)">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Add New Supplier</h3>
+                    <input type="text" ng-model="newSup.supplier_id" placeholder="Supplier ID" required><br>
+                    <input type="text" ng-model="newSup.supplier_name" placeholder="Name" required><br>
+                    <input type="text" ng-model="newSup.supplier_location" placeholder="Supplier Location" required><br>
+                    <button ng-click="addSupplier()">Add Supplier</button>
+                </div>
             </div>
             <div id="Tab3" style="display: none;">
                 <h3>Batch</h3>
+            </div>
+            <div id="Tab4" style="display: none;">
+                <h3>Medicine</h3>
             </div>
         </div>
     </div>
@@ -385,6 +414,9 @@
         document.getElementById('tab3Button').addEventListener('click', function (event) {
             openSubTab(event, 'Tab3');
         });
+        document.getElementById('tab4Button').addEventListener('click', function (event) {
+            openSubTab(event, 'Tab4');
+        });
 
         app.controller('TableController2', function ($scope, $http) {
             function fetchDoctors() {
@@ -430,7 +462,75 @@
                     });
             };
 
+            $scope.deleteDoctor = function (docId) {
+                if (confirm("Are you sure you want to delete this doctor?")) {
+                    $http.post('/api/delete_doctor/', { doc_id: docId })
+                        .then(function (response) {
+                            fetchDoctors();
+                        })
+                        .catch(function (error) {
+                            console.error('Error deleting doctor:', error);
+                        });
+                }
+            };
+
         });
+
+        app.controller('TableController3', function ($scope, $http) {
+            function fetchSuppliers() {
+                $http.get('/api/suppliers')
+                    .then(function (response) {
+                        var transformedData = [];
+                        angular.forEach(response.data, function (item) {
+                            var supplier = {
+                                supplier_id: item[0],
+                                supplier_name: item[1],
+                                supplier_location: item[2]
+                            };
+                            transformedData.push(supplier);
+                        });
+                        $scope.supplier = transformedData;
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching suppliers:', error);
+                    });
+            }
+
+            fetchSuppliers();
+
+            $scope.addSupplier = function () {
+                var newSupplierData = {
+                    supplier_id: $scope.newSup.supplier_id,
+                    supplier_name: $scope.newSup.supplier_name,
+                    supplier_location: $scope.newSup.supplier_location
+                };
+
+                $http.post('/api/add_supplier', newSupplierData)
+                    .then(function (response) {
+                        if (response.data.message == 'Supplier with ID already exists') {
+                            alert('Supplier with ID already exists');
+                        }
+                        fetchSuppliers();
+                        $scope.newSup = {};
+                    })
+                    .catch(function (error) {
+                        console.error('Error adding supplier:', error);
+                    });
+            };
+
+            $scope.deleteSupplier = function (supplierId) {
+                if (confirm("Are you sure you want to delete this supplier?")) {
+                    $http.post('/api/delete_supplier/', { supplier_id: supplierId })
+                        .then(function (response) {
+                            fetchSuppliers();
+                        })
+                        .catch(function (error) {
+                            console.error('Error deleting supplier:', error);
+                        });
+                }
+            };
+        });
+
 
     </script>
 
