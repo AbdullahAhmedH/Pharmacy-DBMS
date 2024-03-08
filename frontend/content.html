@@ -238,12 +238,16 @@
 
     <div id="Page2" class="tabcontent">
         <div>
+            <center>
+                <h3>DATABASE</h3>
+            </center>
             <button class="tablinks" id="tab1Button">Doctors</button>
-            <button class="tablinks" id="tab2Button">Suppliers</button>
-            <button class="tablinks" id="tab3Button">Medicine</button>
-            <button class="tablinks" id="tab4Button">Batch</button>
+            <button class="tablinks" id="tab2Button">Patients</button>
+            <button class="tablinks" id="tab3Button">Suppliers</button>
+            <button class="tablinks" id="tab4Button">Medicine</button>
+            <button class="tablinks" id="tab5Button">Batch</button>
         </div>
-        
+
         <div>
             <div id="Tab1" style="display: none;">
                 <h3>Doctors</h3>
@@ -286,8 +290,49 @@
             </div>
 
             <div id="Tab2" style="display: none;">
-                <h3>Suppliers</h3>
+                <h3>Patients</h3>
                 <div ng-controller="TableController3">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Mobile Number</th>
+                                <th>Address</th>
+                                <th>Sex</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="patient in patients | orderBy:'Patient_id'">
+                                <td>{{ patient.patient_id }}</td>
+                                <td>{{ patient.patient_name }}</td>
+                                <td>{{ patient.patient_mobile }}</td>
+                                <td>{{ patient.patient_address }}</td>
+                                <td>{{ patient.sex }}</td>
+                                <td>
+                                    <button class="delete-btn" ng-click="deletePatient(patient.patient_id)">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Add New Patient</h3>
+                    <input type="text" ng-model="newPatient.patient_id" placeholder="Patient ID" required><br>
+                    <input type="text" ng-model="newPatient.patient_name" placeholder="Name" required><br>
+                    <input type="text" ng-model="newPatient.patient_mobile" placeholder="Mobile Number" required
+                        ng-pattern="/^\d{10}$/" ng-maxlength="10" ng-minlength="10"><br>
+                    <input type="text" ng-model="newPatient.patient_address" placeholder="Address" required><br>
+                    <input type="text" ng-model="newPatient.sex" placeholder="Sex" required><br>
+                    <button ng-click="addPatient()">Add Patient</button>
+                </div>
+            </div>
+
+
+            <div id="Tab3" style="display: none;">
+                <h3>Suppliers</h3>
+                <div ng-controller="TableController4">
                     <table>
                         <thead>
                             <tr>
@@ -318,9 +363,9 @@
                 </div>
             </div>
 
-            <div id="Tab3" style="display: none;">
+            <div id="Tab4" style="display: none;">
                 <h3>Medicine</h3>
-                <d ng-controller="TableController4">
+                <div ng-controller="TableController5">
                     <table>
                         <thead>
                             <tr>
@@ -361,404 +406,492 @@
                         <option value="N">No</option>
                     </select>
                     <button ng-click="addMedicine()">Add Medicine</button>
+                </div>
             </div>
-        </div>
 
-        <div id="Tab4" style="display: none;">
-            <h3>Batches</h3>
-            <div ng-controller="TableController5">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Batch ID</th>
-                            <th>Timestamp(Added)</th>
-                            <th>Supplier ID</th>
-                            <th>Medicine ID</th>
-                            <th>Quantity</th>
-                            <th>Expiry Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="batch in batches | orderBy:'Batch_id'"
-                            ng-class="{ 'expired': isExpired(batch.Batch_expiry) }">
-                            <td>{{ batch.Batch_id }}</td>
-                            <td>{{ batch.Batch_timestamp }}</td>
-                            <td>{{ batch.Supplier_id }}</td>
-                            <td>{{ batch.Med_id }}</td>
-                            <td>{{ batch.Batch_qty }}</td>
-                            <td>{{ batch.Batch_expiry }}</td>
-                            <td>
-                                <button class="delete-btn" ng-click="deleteBatch(batch.Batch_id)">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <h3>Add New Batch</h3>
-                <input type="text" ng-model="newBatch.Batch_id" placeholder="Batch ID" required><br>
-                <input type="text" ng-model="newBatch.Supplier_id" placeholder="Supplier ID" required><br>
-                <input type="text" ng-model="newBatch.Med_id" placeholder="Medicine ID" required><br>
-                <input type="text" ng-model="newBatch.Batch_qty" placeholder="Quantity" required><br>
-                <input type="date" ng-model="newBatch.Batch_expiry" required><br>
-                <button ng-click="addBatch()">Add Batch</button>
+            <div id="Tab5" style="display: none;">
+                <h3>Batches</h3>
+                <div ng-controller="TableController6">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Batch ID</th>
+                                <th>Timestamp(Added)</th>
+                                <th>Supplier ID</th>
+                                <th>Medicine ID</th>
+                                <th>Quantity</th>
+                                <th>Expiry Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="batch in batches | orderBy:'Batch_id'"
+                                ng-class="{ 'expired': isExpired(batch.Batch_expiry) }">
+                                <td>{{ batch.Batch_id }}</td>
+                                <td>{{ batch.Batch_timestamp }}</td>
+                                <td>{{ batch.Supplier_id }}</td>
+                                <td>{{ batch.Med_id }}</td>
+                                <td>{{ batch.Batch_qty }}</td>
+                                <td>{{ batch.Batch_expiry }}</td>
+                                <td>
+                                    <button class="delete-btn" ng-click="deleteBatch(batch.Batch_id)">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Add New Batch</h3>
+                    <input type="text" ng-model="newBatch.Batch_id" placeholder="Batch ID" required><br>
+                    <input type="text" ng-model="newBatch.Supplier_id" placeholder="Supplier ID" required><br>
+                    <input type="text" ng-model="newBatch.Med_id" placeholder="Medicine ID" required><br>
+                    <input type="text" ng-model="newBatch.Batch_qty" placeholder="Quantity" required><br>
+                    <input type="date" ng-model="newBatch.Batch_expiry" required><br>
+                    <button ng-click="addBatch()">Add Batch</button>
+                </div>
             </div>
         </div>
     </div>
-    </div>
 
-    <div id="Page3" class="tabcontent">
+    <di id="Page3" class="tabcontent">
         <center>
             <h3>BILLING</h3>
         </center>
-    </div>
+        <div>
+            <label for="patientId">Patient ID:</label>
+            <input type="number" id="patientId" ng-model="patientId" placeholder="Patient ID"><br>
+            <button ng-click="checkPatientId()">Submit</button>
+        </div>
 
-    <script>
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
+        <div ng-controller="TableController6" ng-show="displayTable">
+            <h3>Patient Data</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="data in patientData">
+                        <td>{{ data.property1 }}</td>
+                        <td>{{ data.property2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+
+        </div>
+        </div>
+
+        <script>
+            function openTab(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
             }
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-        document.getElementById("Page1").style.display = "block";
+            document.getElementById("Page1").style.display = "block";
 
-        var app = angular.module('myApp', []);
+            var app = angular.module('myApp', []);
 
-        app.controller('TableController1', function ($scope, $http) {
-            function fetchNotifications() {
-                $http.get('/api/notifications')
-                    .then(function (response) {
-                        angular.forEach(response.data, function (item, index) {
-                            item.number = index + 1;
-                            item.notificationId = item[0];
-                            item.priority = item[1];
-                            item.detail = item[2];
-                        });
-                        $scope.notifs = response.data;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching notifications:', error);
-                    });
-            }
-
-            fetchNotifications();
-
-            $scope.addNotif = function () {
-                var newData = {
-                    detail: $scope.newNotif.detail,
-                    priority: $scope.newNotif.priority
-                };
-
-                $http.post('/api/add_notification', newData)
-                    .then(function (response) {
-                        fetchNotifications();
-                        $scope.newNotif = {};
-                    })
-                    .catch(function (error) {
-                        console.error('Error adding notification:', error);
-                    });
-            };
-
-            $scope.markAsCompleted = function (notificationId) {
-                $http.post('/api/mark_as_completed', { notificationId: notificationId })
-                    .then(function (response) {
-                        fetchNotifications();
-                    })
-                    .catch(function (error) {
-                        console.error('Error marking as completed:', error);
-                    });
-            };
-        });
-
-        function openSubTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.querySelectorAll('#Page2 > div > div');
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-
-        document.getElementById('tab1Button').addEventListener('click', function (event) {
-            openSubTab(event, 'Tab1');
-        });
-        document.getElementById('tab2Button').addEventListener('click', function (event) {
-            openSubTab(event, 'Tab2');
-        });
-        document.getElementById('tab3Button').addEventListener('click', function (event) {
-            openSubTab(event, 'Tab3');
-        });
-        document.getElementById('tab4Button').addEventListener('click', function (event) {
-            openSubTab(event, 'Tab4');
-        });
-
-        function formatDate(date) {
-            var d = new Date(date),
-                month = '' + (d.getMonth() + 1),
-                day = '' + d.getDate(),
-                year = d.getFullYear();
-
-            if (month.length < 2)
-                month = '0' + month;
-            if (day.length < 2)
-                day = '0' + day;
-
-            return [year, month, day].join('-');
-        }
-
-        app.controller('TableController2', function ($scope, $http) {
-            function fetchDoctors() {
-                $http.get('/api/doctor')
-                    .then(function (response) {
-                        var transformedData = [];
-                        angular.forEach(response.data, function (item) {
-                            var doctor = {
-                                doc_id: item[0],
-                                doc_name: item[1],
-                                doc_mobile: item[2],
-                                doc_work_address: item[3],
-                                doc_speciality: item[4]
-                            };
-                            transformedData.push(doctor);
-                        });
-                        $scope.doctor = transformedData;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching doctors:', error);
-                    });
-            }
-            fetchDoctors();
-            $scope.addDoctor = function () {
-                var newDoctorData = {
-                    doc_id: $scope.newDoc.doc_id,
-                    doc_name: $scope.newDoc.doc_name,
-                    doc_mobile: $scope.newDoc.doc_mobile,
-                    doc_work_address: $scope.newDoc.doc_work_address,
-                    doc_speciality: $scope.newDoc.doc_speciality
-                };
-
-                $http.post('/api/add_doctor', newDoctorData)
-                    .then(function (response) {
-                        if (response.data.message == 'Doctor with ID already exists') {
-                            alert('Doctor with ID already exists')
-                        };
-                        fetchDoctors();
-                        $scope.newDoc = {};
-                    })
-                    .catch(function (error) {
-                        console.error('Error adding doctor:', error);
-                    });
-            };
-
-            $scope.deleteDoctor = function (docId) {
-                if (confirm("Are you sure you want to delete this doctor?")) {
-                    $http.post('/api/delete_doctor/', { doc_id: docId })
+            app.controller('TableController1', function ($scope, $http) {
+                function fetchNotifications() {
+                    $http.get('/api/notifications')
                         .then(function (response) {
+                            angular.forEach(response.data, function (item, index) {
+                                item.number = index + 1;
+                                item.notificationId = item[0];
+                                item.priority = item[1];
+                                item.detail = item[2];
+                            });
+                            $scope.notifs = response.data;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching notifications:', error);
+                        });
+                }
+
+                fetchNotifications();
+
+                $scope.addNotif = function () {
+                    var newData = {
+                        detail: $scope.newNotif.detail,
+                        priority: $scope.newNotif.priority
+                    };
+
+                    $http.post('/api/add_notification', newData)
+                        .then(function (response) {
+                            fetchNotifications();
+                            $scope.newNotif = {};
+                        })
+                        .catch(function (error) {
+                            console.error('Error adding notification:', error);
+                        });
+                };
+
+                $scope.markAsCompleted = function (notificationId) {
+                    $http.post('/api/mark_as_completed', { notificationId: notificationId })
+                        .then(function (response) {
+                            fetchNotifications();
+                        })
+                        .catch(function (error) {
+                            console.error('Error marking as completed:', error);
+                        });
+                };
+            });
+
+            function openSubTab(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.querySelectorAll('#Page2 > div > div');
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+            }
+
+            document.getElementById('tab1Button').addEventListener('click', function (event) {
+                openSubTab(event, 'Tab1');
+            });
+            document.getElementById('tab2Button').addEventListener('click', function (event) {
+                openSubTab(event, 'Tab2');
+            });
+            document.getElementById('tab3Button').addEventListener('click', function (event) {
+                openSubTab(event, 'Tab3');
+            });
+            document.getElementById('tab4Button').addEventListener('click', function (event) {
+                openSubTab(event, 'Tab4');
+            });
+            document.getElementById('tab5Button').addEventListener('click', function (event) {
+                openSubTab(event, 'Tab5');
+            });
+
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
+
+                if (month.length < 2)
+                    month = '0' + month;
+                if (day.length < 2)
+                    day = '0' + day;
+
+                return [year, month, day].join('-');
+            }
+
+            app.controller('TableController2', function ($scope, $http) {
+                function fetchDoctors() {
+                    $http.get('/api/doctor')
+                        .then(function (response) {
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var doctor = {
+                                    doc_id: item[0],
+                                    doc_name: item[1],
+                                    doc_mobile: item[2],
+                                    doc_work_address: item[3],
+                                    doc_speciality: item[4]
+                                };
+                                transformedData.push(doctor);
+                            });
+                            $scope.doctor = transformedData;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching doctors:', error);
+                        });
+                }
+                fetchDoctors();
+                $scope.addDoctor = function () {
+                    var newDoctorData = {
+                        doc_id: $scope.newDoc.doc_id,
+                        doc_name: $scope.newDoc.doc_name,
+                        doc_mobile: $scope.newDoc.doc_mobile,
+                        doc_work_address: $scope.newDoc.doc_work_address,
+                        doc_speciality: $scope.newDoc.doc_speciality
+                    };
+
+                    $http.post('/api/add_doctor', newDoctorData)
+                        .then(function (response) {
+                            if (response.data.message == 'Doctor with ID already exists') {
+                                alert('Doctor with ID already exists')
+                            };
                             fetchDoctors();
+                            $scope.newDoc = {};
                         })
                         .catch(function (error) {
-                            console.error('Error deleting doctor:', error);
+                            console.error('Error adding doctor:', error);
                         });
-                }
-            };
-
-        });
-
-        app.controller('TableController3', function ($scope, $http) {
-            function fetchSuppliers() {
-                $http.get('/api/suppliers')
-                    .then(function (response) {
-                        var transformedData = [];
-                        angular.forEach(response.data, function (item) {
-                            var supplier = {
-                                supplier_id: item[0],
-                                supplier_name: item[1],
-                                supplier_location: item[2]
-                            };
-                            transformedData.push(supplier);
-                        });
-                        $scope.supplier = transformedData;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching suppliers:', error);
-                    });
-            }
-
-            fetchSuppliers();
-
-            $scope.addSupplier = function () {
-                var newSupplierData = {
-                    supplier_id: $scope.newSup.supplier_id,
-                    supplier_name: $scope.newSup.supplier_name,
-                    supplier_location: $scope.newSup.supplier_location
                 };
 
-                $http.post('/api/add_supplier', newSupplierData)
-                    .then(function (response) {
-                        if (response.data.message == 'Supplier with ID already exists') {
-                            alert('Supplier with ID already exists');
-                        }
-                        fetchSuppliers();
-                        $scope.newSup = {};
-                    })
-                    .catch(function (error) {
-                        console.error('Error adding supplier:', error);
-                    });
-            };
+                $scope.deleteDoctor = function (docId) {
+                    if (confirm("Are you sure you want to delete this doctor?")) {
+                        $http.post('/api/delete_doctor/', { doc_id: docId })
+                            .then(function (response) {
+                                fetchDoctors();
+                            })
+                            .catch(function (error) {
+                                console.error('Error deleting doctor:', error);
+                            });
+                    }
+                };
+            });
 
-            $scope.deleteSupplier = function (supplierId) {
-                if (confirm("Are you sure you want to delete this supplier?")) {
-                    $http.post('/api/delete_supplier/', { supplier_id: supplierId })
+            app.controller('TableController3', function ($scope, $http) {
+                function fetchPatients() {
+                    $http.get('/api/patient')
                         .then(function (response) {
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var patient = {
+                                    patient_id: item[0],
+                                    patient_name: item[1],
+                                    patient_mobile: item[2],
+                                    patient_address: item[3],
+                                    sex: item[4]
+                                };
+                                transformedData.push(patient);
+                            });
+                            $scope.patients = transformedData;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching patients:', error);
+                        });
+                }
+                fetchPatients();
+
+                $scope.addPatient = function () {
+                    var newPatientData = {
+                        patient_id: $scope.newPatient.patient_id,
+                        patient_name: $scope.newPatient.patient_name,
+                        patient_mobile: $scope.newPatient.patient_mobile,
+                        patient_address: $scope.newPatient.patient_address,
+                        sex: $scope.newPatient.sex
+                    };
+
+                    $http.post('/api/add_patient', newPatientData)
+                        .then(function (response) {
+                            if (response.data.message == 'Patient with ID already exists') {
+                                alert('Patient with ID already exists');
+                            }
+                            fetchPatients();
+                            $scope.newPatient = {};
+                        })
+                        .catch(function (error) {
+                            console.error('Error adding patient:', error);
+                        });
+                };
+
+                $scope.deletePatient = function (patientId) {
+                    if (confirm("Are you sure you want to delete this patient?")) {
+                        $http.post('/api/delete_patient/', { patient_id: patientId })
+                            .then(function (response) {
+                                fetchPatients();
+                            })
+                            .catch(function (error) {
+                                console.error('Error deleting patient:', error);
+                            });
+                    }
+                };
+            });
+
+
+            app.controller('TableController4', function ($scope, $http) {
+                function fetchSuppliers() {
+                    $http.get('/api/suppliers')
+                        .then(function (response) {
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var supplier = {
+                                    supplier_id: item[0],
+                                    supplier_name: item[1],
+                                    supplier_location: item[2]
+                                };
+                                transformedData.push(supplier);
+                            });
+                            $scope.supplier = transformedData;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching suppliers:', error);
+                        });
+                }
+
+                fetchSuppliers();
+
+                $scope.addSupplier = function () {
+                    var newSupplierData = {
+                        supplier_id: $scope.newSup.supplier_id,
+                        supplier_name: $scope.newSup.supplier_name,
+                        supplier_location: $scope.newSup.supplier_location
+                    };
+
+                    $http.post('/api/add_supplier', newSupplierData)
+                        .then(function (response) {
+                            if (response.data.message == 'Supplier with ID already exists') {
+                                alert('Supplier with ID already exists');
+                            }
                             fetchSuppliers();
+                            $scope.newSup = {};
                         })
                         .catch(function (error) {
-                            console.error('Error deleting supplier:', error);
+                            console.error('Error adding supplier:', error);
                         });
-                }
-            };
-        });
-
-        app.controller('TableController4', function ($scope, $http) {
-            function fetchMedicines() {
-                $http.get('/api/medicines')
-                    .then(function (response) {
-                        var transformedData = [];
-                        angular.forEach(response.data, function (item) {
-                            var medicine = {
-                                Med_id: item[0],
-                                Med_name: item[1],
-                                Med_company: item[2],
-                                Med_cost_unit: item[3],
-                                Med_type: item[4],
-                                Is_OTC: item[5]
-                            };
-                            transformedData.push(medicine);
-                        });
-                        $scope.medicines = transformedData;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching medicines:', error);
-                    });
-            }
-
-            fetchMedicines();
-
-            $scope.addMedicine = function () {
-                var newMedicineData = {
-                    Med_id: $scope.newMed.Med_id,
-                    Med_name: $scope.newMed.Med_name,
-                    Med_company: $scope.newMed.Med_company,
-                    Med_cost_unit: $scope.newMed.Med_cost_unit,
-                    Med_type: $scope.newMed.Med_type,
-                    Is_OTC: $scope.newMed.Is_OTC
                 };
 
-                $http.post('/api/add_medicine', newMedicineData)
-                    .then(function (response) {
-                        if (response.data.message == 'Medicine with ID already exists') {
-                            alert('Medicine with ID already exists');
-                        }
-                        fetchMedicines();
-                        $scope.newMed = {};
-                    })
-                    .catch(function (error) {
-                        console.error('Error adding medicine:', error);
-                    });
-            };
+                $scope.deleteSupplier = function (supplierId) {
+                    if (confirm("Are you sure you want to delete this supplier?")) {
+                        $http.post('/api/delete_supplier/', { supplier_id: supplierId })
+                            .then(function (response) {
+                                fetchSuppliers();
+                            })
+                            .catch(function (error) {
+                                console.error('Error deleting supplier:', error);
+                            });
+                    }
+                };
+            });
 
-            $scope.deleteMedicine = function (medId) {
-                if (confirm("Are you sure you want to delete this medicine?")) {
-                    $http.post('/api/delete_medicine/', { Med_id: medId })
+            app.controller('TableController5', function ($scope, $http) {
+                function fetchMedicines() {
+                    $http.get('/api/medicines')
                         .then(function (response) {
-                            fetchMedicines();
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var medicine = {
+                                    Med_id: item[0],
+                                    Med_name: item[1],
+                                    Med_company: item[2],
+                                    Med_cost_unit: item[3],
+                                    Med_type: item[4],
+                                    Is_OTC: item[5]
+                                };
+                                transformedData.push(medicine);
+                            });
+                            $scope.medicines = transformedData;
                         })
                         .catch(function (error) {
-                            console.error('Error deleting medicine:', error);
+                            console.error('Error fetching medicines:', error);
                         });
                 }
-            };
-        });
 
-        app.controller('TableController5', function ($scope, $http) {
+                fetchMedicines();
 
-            $scope.isExpired = function (expiryDate) {
-                var today = new Date();
-                var expiry = new Date(expiryDate);
-                return expiry <= today;
-            }
+                $scope.addMedicine = function () {
+                    var newMedicineData = {
+                        Med_id: $scope.newMed.Med_id,
+                        Med_name: $scope.newMed.Med_name,
+                        Med_company: $scope.newMed.Med_company,
+                        Med_cost_unit: $scope.newMed.Med_cost_unit,
+                        Med_type: $scope.newMed.Med_type,
+                        Is_OTC: $scope.newMed.Is_OTC
+                    };
 
-            function fetchBatches() {
-                $http.get('/api/batches')
-                    .then(function (response) {
-                        var transformedData = [];
-                        angular.forEach(response.data, function (item) {
-                            var batch = {
-                                Batch_id: item.Batch_id,
-                                Batch_timestamp: new Date(item.Batch_timestamp).toLocaleDateString(), // Assuming Batch_timestamp is a timestamp
-                                Supplier_id: item.Supplier_id,
-                                Med_id: item.Med_id,
-                                Batch_qty: item.Batch_qty,
-                                Batch_expiry: new Date(item.Batch_expiry).toLocaleDateString() // Assuming Batch_expiry is a date
-                            };
-                            transformedData.push(batch);
+                    $http.post('/api/add_medicine', newMedicineData)
+                        .then(function (response) {
+                            if (response.data.message == 'Medicine with ID already exists') {
+                                alert('Medicine with ID already exists');
+                            }
+                            fetchMedicines();
+                            $scope.newMed = {};
+                        })
+                        .catch(function (error) {
+                            console.error('Error adding medicine:', error);
                         });
-                        $scope.batches = transformedData;
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching batches:', error);
-                    });
-            }
-
-            fetchBatches();
-
-            $scope.addBatch = function () {
-                var newBatchData = {
-                    Batch_id: $scope.newBatch.Batch_id,
-                    Batch_timestamp: 0,
-                    Supplier_id: $scope.newBatch.Supplier_id,
-                    Med_id: $scope.newBatch.Med_id,
-                    Batch_qty: $scope.newBatch.Batch_qty,
-                    Batch_expiry: formatDate($scope.newBatch.Batch_expiry)
                 };
 
-                $http.post('/api/add_batch', newBatchData)
-                    .then(function (response) {
-                        fetchBatches();
-                        $scope.newBatch = {};
-                    })
-                    .catch(function (error) {
-                        console.error('Error adding batch:', error);
-                    });
-            };
+                $scope.deleteMedicine = function (medId) {
+                    if (confirm("Are you sure you want to delete this medicine?")) {
+                        $http.post('/api/delete_medicine/', { Med_id: medId })
+                            .then(function (response) {
+                                fetchMedicines();
+                            })
+                            .catch(function (error) {
+                                console.error('Error deleting medicine:', error);
+                            });
+                    }
+                };
+            });
 
-            $scope.deleteBatch = function (batchId) {
-                if (confirm("Are you sure you want to delete this batch?")) {
-                    $http.post('/api/delete_batch/', { Batch_id: batchId })
+            app.controller('TableController6', function ($scope, $http) {
+
+                $scope.isExpired = function (expiryDate) {
+                    var today = new Date();
+                    var expiry = new Date(expiryDate);
+                    return expiry <= today;
+                }
+
+                function fetchBatches() {
+                    $http.get('/api/batches')
+                        .then(function (response) {
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var batch = {
+                                    Batch_id: item.Batch_id,
+                                    Batch_timestamp: new Date(item.Batch_timestamp).toLocaleDateString(), // Assuming Batch_timestamp is a timestamp
+                                    Supplier_id: item.Supplier_id,
+                                    Med_id: item.Med_id,
+                                    Batch_qty: item.Batch_qty,
+                                    Batch_expiry: new Date(item.Batch_expiry).toLocaleDateString() // Assuming Batch_expiry is a date
+                                };
+                                transformedData.push(batch);
+                            });
+                            $scope.batches = transformedData;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching batches:', error);
+                        });
+                }
+
+                fetchBatches();
+
+                $scope.addBatch = function () {
+                    var newBatchData = {
+                        Batch_id: $scope.newBatch.Batch_id,
+                        Batch_timestamp: 0,
+                        Supplier_id: $scope.newBatch.Supplier_id,
+                        Med_id: $scope.newBatch.Med_id,
+                        Batch_qty: $scope.newBatch.Batch_qty,
+                        Batch_expiry: formatDate($scope.newBatch.Batch_expiry)
+                    };
+
+                    $http.post('/api/add_batch', newBatchData)
                         .then(function (response) {
                             fetchBatches();
+                            $scope.newBatch = {};
                         })
                         .catch(function (error) {
-                            console.error('Error deleting batch:', error);
+                            console.error('Error adding batch:', error);
                         });
-                }
-            };
-        });
+                };
 
-    </script>
+                $scope.deleteBatch = function (batchId) {
+                    if (confirm("Are you sure you want to delete this batch?")) {
+                        $http.post('/api/delete_batch/', { Batch_id: batchId })
+                            .then(function (response) {
+                                fetchBatches();
+                            })
+                            .catch(function (error) {
+                                console.error('Error deleting batch:', error);
+                            });
+                    }
+                };
+            });
+
+        </script>
 
 </body>
 
