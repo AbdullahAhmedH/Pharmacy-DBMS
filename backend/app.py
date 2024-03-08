@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import (Flask, jsonify, redirect, render_template, request,
                    send_from_directory, url_for)
 from flask_mysqldb import MySQL
@@ -169,6 +171,87 @@ def delete_supplier():
     finally:
         cursor.close()
 
+from flask import jsonify, request
+
+
+@app.route('/api/medicines', methods=['GET'])
+def get_medicines():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM medicine")
+    medicines = cursor.fetchall()
+    return jsonify(medicines)
+
+@app.route('/api/add_medicine', methods=['POST'])
+def add_medicine():
+    new_medicine = request.json
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT Med_id FROM medicine")
+    medicine_ids = [res[0] for res in cursor.fetchall()]
+    if int(new_medicine['Med_id']) in medicine_ids:
+        response = {'message': 'Medicine with ID already exists'}
+        return jsonify(response)
+    else:
+        cursor.execute("INSERT INTO medicine VALUES (%s, %s, %s, %s, %s, %s)", (new_medicine['Med_id'], new_medicine['Med_name'], new_medicine['Med_company'], new_medicine['Med_cost_unit'], new_medicine['Med_type'], new_medicine['Is_OTC']))
+        mysql.connection.commit()
+        response = {'message': 'Medicine added successfully'}
+        return jsonify(response)
+
+@app.route('/api/delete_medicine/', methods=['POST'])
+def delete_medicine():
+    med_id = request.json['Med_id']
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("DELETE FROM medicine WHERE Med_id = %s", (med_id,))
+        mysql.connection.commit()
+        response = {'message': 'Medicine information deleted successfully'}
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/batches', methods=['GET'])
+def get_batches():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM batch")
+    batches = cursor.fetchall()
+    transformed_batches = []
+    for batch in batches:
+        transformed_batch = {
+            'Batch_id': batch[0],
+            'Batch_timestamp': batch[1].strftime('%Y-%m-%d'),  # Assuming Batch_timestamp is a datetime object
+            'Supplier_id': batch[2],
+            'Med_id': batch[3],
+            'Batch_qty': batch[4],
+            'Batch_expiry': batch[5].strftime('%Y-%m-%d')  # Assuming Batch_expiry is a date object
+        }
+        transformed_batches.append(transformed_batch)
+    return jsonify(transformed_batches)
+
+@app.route('/api/add_batch', methods=['POST'])
+def add_batch():
+    new_batch = request.json
+    cursor = mysql.connection.cursor()
+    batch_expiry = datetime.fromisoformat(new_batch['Batch_expiry']).date()
+    cursor.execute("INSERT INTO batch (Batch_id, Batch_timestamp, Supplier_id, Med_id, Batch_qty, Batch_expiry) VALUES (%s, NOW(), %s, %s, %s, %s)",
+                   (new_batch['Batch_id'], new_batch['Supplier_id'], new_batch['Med_id'], new_batch['Batch_qty'], batch_expiry))
+    mysql.connection.commit()
+    response = {'message': 'Batch added successfully'}
+    return jsonify(response)
+
+@app.route('/api/delete_batch/', methods=['POST'])
+def delete_batch():
+    batch_id = request.json['Batch_id']
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("DELETE FROM batch WHERE Batch_id = %s", (batch_id,))
+        mysql.connection.commit()
+        response = {'message': 'Batch information deleted successfully'}
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
 
 
 if __name__ == '__main__':
