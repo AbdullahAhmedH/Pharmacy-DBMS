@@ -119,5 +119,57 @@ def add_doctor():
         response = {'message': 'Doctor added successfully'}
         return jsonify(response)
 
+@app.route('/api/delete_doctor/', methods=['POST'])
+def delete_doctor():
+    doc_id = request.json['doc_id']
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("DELETE FROM doctor WHERE doc_id = %s", (doc_id,))
+        mysql.connection.commit()
+        response = {'message': 'Doctor information deleted successfully'}
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/suppliers', methods=['GET'])
+def get_suppliers():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM supplier")
+    suppliers = cursor.fetchall()
+    return jsonify(suppliers)
+
+@app.route('/api/add_supplier', methods=['POST'])
+def add_supplier():
+    new_supplier = request.json
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT supplier_id FROM supplier")
+    supplier_ids = [res[0] for res in cursor.fetchall()]
+    if int(new_supplier['supplier_id']) in supplier_ids:
+        response = {'message': 'Supplier with ID already exists'}
+        return jsonify(response)
+    else:
+        cursor.execute("INSERT INTO supplier VALUES (%s, %s, %s)", (new_supplier['supplier_id'], new_supplier['supplier_name'], new_supplier['supplier_location']))
+        mysql.connection.commit()
+        response = {'message': 'Supplier added successfully'}
+        return jsonify(response)
+
+@app.route('/api/delete_supplier/', methods=['POST'])
+def delete_supplier():
+    supplier_id = request.json['supplier_id']
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("DELETE FROM supplier WHERE supplier_id = %s", (supplier_id,))
+        mysql.connection.commit()
+        response = {'message': 'Supplier information deleted successfully'}
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
