@@ -111,7 +111,6 @@ def add_doctor():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT doc_id FROM doctor")
     doc_ids = [res[0] for res in cursor.fetchall()]
-    print(new_doctor,doc_ids)
     if int(new_doctor['doc_id']) in doc_ids:
         response = {'message': 'Doctor with ID already exists'}
         return jsonify(response)
@@ -129,6 +128,46 @@ def delete_doctor():
         cursor.execute("DELETE FROM doctor WHERE doc_id = %s", (doc_id,))
         mysql.connection.commit()
         response = {'message': 'Doctor information deleted successfully'}
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/patient', methods=['GET'])
+def get_patients():
+    # Fetch patients data from database (replace this with your database query)
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM patient")
+    patients = cursor.fetchall()
+    return jsonify(patients)
+
+@app.route('/api/add_patient', methods=['POST'])
+def add_patient():
+    new_patient = request.json
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT Patient_id FROM patient")
+    patient_ids = [res[0] for res in cursor.fetchall()]
+    print(patient_ids,new_patient)
+    if int(new_patient['patient_id']) in patient_ids:
+        response = {'message': 'Patient with ID already exists'}
+        return jsonify(response)
+    else:
+        cursor.execute("INSERT INTO patient (Patient_id, Patient_name, patient_mobile, Patient_address, Sex) VALUES (%s, %s, %s, %s, %s)", 
+                       (new_patient['patient_id'], new_patient['patient_name'], new_patient['patient_mobile'], new_patient['patient_address'], new_patient['sex']))
+        mysql.connection.commit()
+        response = {'message': 'Patient added successfully'}
+        return jsonify(response)
+
+@app.route('/api/delete_patient/', methods=['POST'])
+def delete_patient():
+    print(request.json)
+    patient_id = request.json['patient_id']
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("DELETE FROM patient WHERE Patient_id = %s", (patient_id,))
+        mysql.connection.commit()
+        response = {'message': 'Patient information deleted successfully'}
         return jsonify(response), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
