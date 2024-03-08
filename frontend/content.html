@@ -463,8 +463,8 @@
             <button ng-click="checkPatientId()">Submit</button>
         </div>
 
-        <div ng-controller="TableController6" ng-show="displayTable">
-            <h3>Patient Data</h3>
+        <div ng-controller="TableController7" ng-show="displayTable">
+            <h3>Patient Prescriptions</h3>
             <table>
                 <thead>
                     <tr>
@@ -709,7 +709,6 @@
                 };
             });
 
-
             app.controller('TableController4', function ($scope, $http) {
                 function fetchSuppliers() {
                     $http.get('/api/suppliers')
@@ -890,6 +889,20 @@
                     }
                 };
             });
+
+            $scope.checkPatientId = function () {
+                var patientId = $scope.patientId;
+
+                $http.get('/api/patient_id_presc?patientId=' + patientId)
+                    .then(function (response) {
+                        $scope.displayTable = true;
+                    })
+                    .catch(function (error) {
+                        console.error('Error checking patient ID:', error);
+                    });
+            };
+
+
 
         </script>
 
