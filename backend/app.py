@@ -292,17 +292,18 @@ def delete_batch():
 @app.route('/api/patient_id_presc', methods=['GET'])
 def check_patient_id_presc():
     patient_id = request.args.get('patientId')
-
     if patient_id is None:
         return jsonify({'error': 'Patient ID not provided'}), 400
 
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM prescription WHERE Patient_id = %s AND paid == N", (patient_id,))
+    cursor.execute("SELECT * FROM prescription WHERE Patient_id = %s AND paid = 'N'", (patient_id,))
     presc = cursor.fetchall()
     if presc:
         return jsonify(presc), 200
     else:
         return jsonify({'message': 'Prescription not found'}), 404
+    
+
 
 
 if __name__ == '__main__':
