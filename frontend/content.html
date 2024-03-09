@@ -454,32 +454,68 @@
     </div>
 
     <di id="Page3" class="tabcontent">
-        <center>
-            <h3>BILLING</h3>
-        </center>
-        <div>
-            <label for="patientId">Patient ID:</label>
-            <input type="number" id="patientId" ng-model="patientId" placeholder="Patient ID"><br>
-            <button ng-click="checkPatientId()">Submit</button>
-        </div>
 
-        <div ng-controller="TableController7" ng-show="displayTable">
+        <div ng-controller="TableController7">
             <h3>Patient Prescriptions</h3>
+
+            <div>
+                <label for="patientId">Patient ID:</label>
+                <input type="number" id="patientId" ng-model="patientId" placeholder="Patient ID"><br>
+                <button ng-click="checkPatientId()">Submit</button>
+            </div>
+
             <table>
                 <thead>
                     <tr>
-                        <th>Column 1</th>
-                        <th>Column 2</th>
+                        <th>Prescription ID</th>
+                        <th>Doctor ID</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="data in patientData">
-                        <td>{{ data.property1 }}</td>
-                        <td>{{ data.property2 }}</td>
+                        <td>{{ data.prescriptionId }}</td>
+                        <td>{{ data.doctorId }}</td>
+                        <td><button ng-click="bill(data.prescriptionId)">Bill</button></td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <br><br><br>
+
+        <div ng-controller="BillingController">
+            <h3>Billing</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Medicine ID</th>
+                        <th>Medicine Name</th>
+                        <th>Quantity</th>
+                        <th>Cost</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="bill in billingData">
+                        <td>{{ bill.medicineId }}</td>
+                        <td ng-hide="bill.editMode">{{ bill.medicineName }}</td>
+                        <td ng-show="bill.editMode">
+                            <select ng-model="bill.selectedMedicine"
+                                ng-options="medicine.medId as medicine.medName for medicine in medicines"></select>
+                        </td>
+                        <td ng-hide="bill.editMode">{{ bill.quantity }}</td>
+                        <td ng-show="bill.editMode"><input type="number" ng-model="bill.quantity"></td>
+                        <td>{{ bill.cost }}</td>
+                        <td>
+                            <button ng-hide="bill.editMode" ng-click="toggleEditMode(bill)">Edit</button>
+                            <button ng-show="bill.editMode" ng-click="updateBill(bill)">Update</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
 
         <div>
 
@@ -890,17 +926,89 @@
                 };
             });
 
-            $scope.checkPatientId = function () {
-                var patientId = $scope.patientId;
+            app.controller('TableController7', function ($scope, $http) {
+                $scope.patientData = [];
 
-                $http.get('/api/patient_id_presc?patientId=' + patientId)
-                    .then(function (response) {
-                        $scope.displayTable = true;
-                    })
-                    .catch(function (error) {
-                        console.error('Error checking patient ID:', error);
-                    });
-            };
+                $scope.checkPatientId = function () {
+                    var patientId = $scope.patientId;
+
+                    $http.get('/api/patient_id_presc?patientId=' + patientId)
+                        .then(function (response) {
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var prescription = {
+                                    prescriptionId: item[0],
+                                    doctorId: item[2]
+                                };
+                                transformedData.push(prescription);
+                            });
+                            $scope.patientData = transformedData;
+                        })
+                        .catch(function (error) {
+                            console.error('Error checking patient ID:', error);
+                        });
+                };
+
+                $scope.bill = function (prescriptionId) {
+                    $http.post('/api/bill', { prescriptionId: prescriptionId })
+                        .then(function (response) {
+                            console.log('Billing successful:', response.data);
+                        })
+                        .catch(function (error) {
+                            console.error('Error billing:', error);
+                        });
+                };
+            });
+
+
+            app.controller('BillingController', function ($scope, $http) {
+                $scope.billingData = [];
+                $scope.medicines = []; // Array to store medicine names
+
+                // Fetch billing data from backend
+                $scope.fetchBillingData = function () {
+                    $http.get('/api/billing') // Adjust endpoint according to your backend
+                        .then(function (response) {
+                            $scope.billingData = response.data;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching billing data:', error);
+                        });
+                };
+
+                // Fetch medicine names from backend
+                $scope.fetchMedicines = function () {
+                    $http.get('/api/medicines') // Adjust endpoint according to your backend
+                        .then(function (response) {
+                            $scope.medicines = response.data;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching medicine names:', error);
+                        });
+                };
+
+                // Call fetchBillingData and fetchMedicines to load data initially
+                $scope.fetchBillingData();
+                $scope.fetchMedicines();
+
+                // Toggle edit mode
+                $scope.toggleEditMode = function (bill) {
+                    bill.editMode = !bill.editMode;
+                };
+
+                // Update bill
+                $scope.updateBill = function (bill) {
+                    $http.put('/api/update-bill', bill) // Adjust endpoint according to your backend
+                        .then(function (response) {
+                            // Optionally update UI or fetch data again
+                            console.log('Bill updated successfully:', response.data);
+                            bill.editMode = false; // Exit edit mode
+                        })
+                        .catch(function (error) {
+                            console.error('Error updating bill:', error);
+                        });
+                };
+            });
 
 
 
