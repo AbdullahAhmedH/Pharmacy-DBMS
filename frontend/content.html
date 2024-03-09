@@ -501,7 +501,7 @@
                         <td ng-hide="bill.editMode">{{ bill.medicineName }}</td>
                         <td ng-show="bill.editMode">
                             <select ng-model="bill.selectedMedicine"
-                                ng-options="medicine.medId as medicine.medName for medicine in medicines"></select>
+                                ng-options="medicine.Med_id as medicine.Med_name for medicine in medicines"></select>
                         </td>
                         <td ng-hide="bill.editMode">{{ bill.quantity }}</td>
                         <td ng-show="bill.editMode"><input type="number" ng-model="bill.quantity"></td>
@@ -511,9 +511,15 @@
                             <button ng-show="bill.editMode" ng-click="updateBill(bill)">Update</button>
                         </td>
                     </tr>
+                    <tr>
+                        <td colspan="4"><input type="text" ng-model="newOTCMedicine.Med_id"></td>
+                        <td><input type="number" ng-model="newOTCMedicine.quantity"></td>
+                        <td><button ng-click="addOTCMedicine()">Add</button></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
+
 
 
 
@@ -950,68 +956,98 @@
                 };
 
                 $scope.bill = function (prescriptionId) {
-                    $http.post('/api/bill', { prescriptionId: prescriptionId })
-                        .then(function (response) {
-                            console.log('Billing successful:', response.data);
-                        })
-                        .catch(function (error) {
-                            console.error('Error billing:', error);
-                        });
+                    $scope.$emit('prescriptionId', prescriptionId);
                 };
             });
 
 
             app.controller('BillingController', function ($scope, $http) {
-                $scope.billingData = [];
-                $scope.medicines = []; // Array to store medicine names
+                $scope.prescData = [];
+                $scope.medicines = [];
 
-                // Fetch billing data from backend
                 $scope.fetchBillingData = function () {
-                    $http.get('/api/billing') // Adjust endpoint according to your backend
-                        .then(function (response) {
-                            $scope.billingData = response.data;
-                        })
-                        .catch(function (error) {
-                            console.error('Error fetching billing data:', error);
-                        });
+                    $scope.$on('prescriptionId', function (event, prescriptionId) {
+                        console.log('Received prescription ID:', prescriptionId);
+                        $http.get('/api/presc_details?prescId=' + prescriptionId)
+                            .then(function (response) {
+                                var transformedData = [];
+                                angular.forEach(response.data, function (item) {
+                                    var prescriptionDetail = {
+                                        medId: item[1],
+                                        medQty: item[2],
+                                        cost: item[3]
+                                    };
+                                    transformedData.push(prescriptionDetail);
+                                });
+                                $scope.prescData = transformedData;
+                            })
+                            .catch(function (error) {
+                                console.error('Error fetching prescription_details data:', error);
+                            });
+                    });
                 };
 
-                // Fetch medicine names from backend
+                var essMedIds = prescData.map(function (detail) {
+                    return detail.medId;
+                });
+
                 $scope.fetchMedicines = function () {
-                    $http.get('/api/medicines') // Adjust endpoint according to your backend
+                    $http.get('/api/essential_medicines?essMeds=' + essMedIds)
                         .then(function (response) {
-                            $scope.medicines = response.data;
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var medicine = {
+                                    Med_id: item[0],
+                                    Med_name: item[1],
+                                    Med_cost_unit: item[3],
+                                };
+                                transformedData.push(medicine);
+                            });
+                            $scope.medicines = transformedData;
                         })
                         .catch(function (error) {
                             console.error('Error fetching medicine names:', error);
                         });
                 };
 
-                // Call fetchBillingData and fetchMedicines to load data initially
+                $scope.fetchOTCMedicines = function () {
+                    $http.get('/api/otc_medicines')
+                        .then(function (response) {
+                            var transformedData = [];
+                            angular.forEach(response.data, function (item) {
+                                var medicine = {
+                                    Med_id: item[0],
+                                    Med_name: item[1],
+                                    Med_cost_unit: item[3]
+                                };
+                                transformedData.push(medicine);
+                            });
+                            $scope.otcMedicines = transformedData;
+                        })
+                        .catch(function (error) {
+                            console.error('Error fetching OTC medicines:', error);
+                        });
+                };
+
+
                 $scope.fetchBillingData();
                 $scope.fetchMedicines();
 
-                // Toggle edit mode
                 $scope.toggleEditMode = function (bill) {
                     bill.editMode = !bill.editMode;
                 };
 
-                // Update bill
                 $scope.updateBill = function (bill) {
-                    $http.put('/api/update-bill', bill) // Adjust endpoint according to your backend
+                    $http.put('/api/update-bill', bill)
                         .then(function (response) {
-                            // Optionally update UI or fetch data again
                             console.log('Bill updated successfully:', response.data);
-                            bill.editMode = false; // Exit edit mode
+                            bill.editMode = false;
                         })
                         .catch(function (error) {
                             console.error('Error updating bill:', error);
                         });
                 };
             });
-
-
-
         </script>
 
 </body>

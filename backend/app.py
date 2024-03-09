@@ -303,7 +303,38 @@ def check_patient_id_presc():
     else:
         return jsonify({'message': 'Prescription not found'}), 404
     
+@app.route('/api/presc_details', methods=['GET'])
+def presc_details():
+    presc_id = request.args.get('prescId')
+    if presc_id is None:
+        return jsonify({'error': 'Patient ID not provided'}), 400
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM presc_details WHERE Presc_id = %s", (presc_id,))
+    presc = cursor.fetchall()
+    if presc:
+        return jsonify(presc), 200
+    else:
+        return jsonify({'message': 'Prescription not found'}), 404
 
+@app.route('/api/essential_medicines', methods=['GET'])
+def essential_meds():
+    ess_medids = request.args.get('essMeds')
+    if ess_medids is True:
+        cursor = mysql.connection.cursor()
+        query = 'SELECT * FROM medicine WHERE Med_id IN ({})'.format(','.join(ess_medids))
+        cursor.execute(query)
+        essential_medicines = cursor.fetchall()
+        return jsonify(essential_medicines)
+    else:
+        return jsonify({'message': 'No essential medicines found'}), 404
+    
+@app.route('/api/otc_medicines', methods=['GET'])
+def otc_medicines():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM medicine WHERE Is_OTC = 'Y'")
+    otc_medicines = cursor.fetchall()
+    cursor.close()
+    return jsonify(otc_medicines)
 
 
 if __name__ == '__main__':
