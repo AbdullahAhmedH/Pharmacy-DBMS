@@ -523,6 +523,11 @@
                 <input type="number" ng-model="otcMedQuantity" placeholder="Quantity">
                 <button ng-click="addOTCMedicine()">Add</button>
             </div>
+            <br>
+            <h4><label>Total Cost: {{ getTotalCost() }}</label></h4>
+            <button style="background-color: blue; color: white;" ng-click="markAsPaid()">Paid</button>
+            <button style="background-color: red; color:white;" ng-click="clearBillingTable()">Clear Billing
+                Table</button>
         </div>
     </div>
 
@@ -1063,6 +1068,35 @@
             $scope.removeOTCMedicine = function (index) {
                 $scope.addedotcmeds.splice(index, 1);
             };
+
+            $scope.getTotalCost = function () {
+                var totalCost = 0;
+                $scope.prescData.forEach(function (bill) {
+                    totalCost += bill.cost;
+                });
+                $scope.addedotcmeds.forEach(function (med) {
+                    totalCost += med.cost;
+                });
+                return totalCost;
+            };
+
+            $scope.clearBillingTable = function () {
+                $scope.prescData = [];
+                $scope.addedotcmeds = [];
+            };
+
+            $scope.markAsPaid = function () {
+                var totalCost = $scope.getTotalCost();
+                var prescriptionId = $rootScope.prescriptionId;
+                $http.post('/api/add_bill', { Total_cost: totalCost, Presc_id: prescriptionId })
+                    .then(function (response) {
+                        console.log('Bill marked as paid:', response.data);
+                    })
+                    .catch(function (error) {
+                        console.error('Error marking bill as paid:', error);
+                    });
+            };
+
 
         });
 

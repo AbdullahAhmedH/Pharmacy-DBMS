@@ -335,6 +335,25 @@ def otc_medicines():
     cursor.close()
     return jsonify(otc_medicines)
 
+@app.route('/api/add_bill', methods=['POST'])
+def mark_as_paid():
+    try:
+        total_cost = request.json['Total_cost']
+        presc_id = request.json.get('Presc_id')
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT MAX(Bill_id) FROM billing")
+        next_bill_id = cursor.fetchall()[0][0] or 1
+        next_bill_id += 1
+        cursor.execute("INSERT INTO billing (Bill_id, Presc_id, Total_cost) VALUES (%s, %s, %s)",(next_bill_id, presc_id, total_cost))
+        if presc_id:
+            cursor.execute("UPDATE prescription SET paid = 'Y' WHERE Presc_id = %s",(presc_id,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({'message': 'Bill marked as paid', 'Bill_id': next_bill_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
