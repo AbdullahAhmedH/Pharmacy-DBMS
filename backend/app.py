@@ -148,7 +148,6 @@ def add_patient():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT Patient_id FROM patient")
     patient_ids = [res[0] for res in cursor.fetchall()]
-    print(patient_ids,new_patient)
     if int(new_patient['patient_id']) in patient_ids:
         response = {'message': 'Patient with ID already exists'}
         return jsonify(response)
@@ -304,7 +303,7 @@ def check_patient_id_presc():
         return jsonify({'message': 'Prescription not found'}), 404
     
 @app.route('/api/presc_details', methods=['GET'])
-def presc_details():
+def presc_detail():
     presc_id = request.args.get('prescId')
     if presc_id is None:
         return jsonify({'error': 'Patient ID not provided'}), 400
@@ -319,9 +318,9 @@ def presc_details():
 @app.route('/api/essential_medicines', methods=['GET'])
 def essential_meds():
     ess_medids = request.args.get('essMeds')
-    if ess_medids is True:
+    if ess_medids:
         cursor = mysql.connection.cursor()
-        query = 'SELECT * FROM medicine WHERE Med_id IN ({})'.format(','.join(ess_medids))
+        query = 'SELECT * FROM medicine WHERE Med_id IN ({})'.format(','.join(ess_medids.split(',')))
         cursor.execute(query)
         essential_medicines = cursor.fetchall()
         return jsonify(essential_medicines)
