@@ -148,7 +148,6 @@ def add_patient():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT Patient_id FROM patient")
     patient_ids = [res[0] for res in cursor.fetchall()]
-    print(patient_ids,new_patient)
     if int(new_patient['patient_id']) in patient_ids:
         response = {'message': 'Patient with ID already exists'}
         return jsonify(response)
@@ -304,7 +303,7 @@ def check_patient_id_presc():
         return jsonify({'message': 'Prescription not found'}), 404
     
 @app.route('/api/presc_details', methods=['GET'])
-def presc_details():
+def presc_detail():
     presc_id = request.args.get('prescId')
     if presc_id is None:
         return jsonify({'error': 'Patient ID not provided'}), 400
@@ -319,9 +318,9 @@ def presc_details():
 @app.route('/api/essential_medicines', methods=['GET'])
 def essential_meds():
     ess_medids = request.args.get('essMeds')
-    if ess_medids is True:
+    if ess_medids:
         cursor = mysql.connection.cursor()
-        query = 'SELECT * FROM medicine WHERE Med_id IN ({})'.format(','.join(ess_medids))
+        query = 'SELECT * FROM medicine WHERE Med_id IN ({})'.format(','.join(ess_medids.split(',')))
         cursor.execute(query)
         essential_medicines = cursor.fetchall()
         return jsonify(essential_medicines)
@@ -335,6 +334,25 @@ def otc_medicines():
     otc_medicines = cursor.fetchall()
     cursor.close()
     return jsonify(otc_medicines)
+
+@app.route('/api/add_bill', methods=['POST'])
+def mark_as_paid():
+    try:
+        total_cost = request.json['Total_cost']
+        presc_id = request.json.get('Presc_id')
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT MAX(Bill_id) FROM billing")
+        next_bill_id = cursor.fetchall()[0][0] or 1
+        next_bill_id += 1
+        cursor.execute("INSERT INTO billing (Bill_id, Presc_id, Total_cost) VALUES (%s, %s, %s)",(next_bill_id, presc_id, total_cost))
+        if presc_id:
+            cursor.execute("UPDATE prescription SET paid = 'Y' WHERE Presc_id = %s",(presc_id,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({'message': 'Bill marked as paid', 'Bill_id': next_bill_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

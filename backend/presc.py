@@ -33,7 +33,7 @@ def add_prescription(connection):
         cursor.execute("SELECT MAX(Presc_id) FROM prescription")
         presc_id = cursor.fetchall()[0][0]
         if presc_id is None:
-            presc_id = 0
+            presc_id = 1
         else:
             presc_id = int(presc_id) + 1
         cursor.execute("INSERT INTO prescription VALUES (%s, %s, %s, %s)",
@@ -69,7 +69,7 @@ def delete_prescription(connection):
         cursor = connection.cursor()
 
         presc_id = int(input("Enter prescription ID to delete: "))
-
+        cursor.execute("DELETE FROM presc_details WHERE Presc_id = %s", (presc_id,))
         cursor.execute("DELETE FROM prescription WHERE Presc_id = %s", (presc_id,))
         connection.commit()
 
