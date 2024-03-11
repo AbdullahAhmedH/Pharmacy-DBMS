@@ -342,7 +342,9 @@ def mark_as_paid():
         presc_id = request.json.get('Presc_id')
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT MAX(Bill_id) FROM billing")
-        next_bill_id = cursor.fetchall()[0][0] or 1
+        next_bill_id = cursor.fetchall()[0][0]
+        if not next_bill_id:
+            next_bill_id = 0
         next_bill_id += 1
         cursor.execute("INSERT INTO billing (Bill_id, Presc_id, Total_cost) VALUES (%s, %s, %s)",(next_bill_id, presc_id, total_cost))
         if presc_id:
@@ -354,6 +356,21 @@ def mark_as_paid():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/update_batch', methods=['POST'])
+def update_batch():
+    try:
+        print("hello")
+        batch_id = request.json['Batch_id']
+        print(batch_id)
+        new_qty = request.json['Batch_qty']
+        print(new_qty)
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE batch SET Batch_qty = %s WHERE Batch_id = %s", (new_qty, batch_id))
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'message': 'Batch quantity updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
