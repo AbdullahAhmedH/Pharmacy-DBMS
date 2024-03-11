@@ -1088,12 +1088,85 @@
             $scope.markAsPaid = function () {
                 var totalCost = $scope.getTotalCost();
                 var prescriptionId = $rootScope.prescriptionId;
-                $http.post('/api/add_bill', { Total_cost: totalCost, Presc_id: prescriptionId })
+
+                $http.get('/api/batches')
                     .then(function (response) {
-                        console.log('Bill marked as paid:', response.data);
+                        var batches = response.data.map(function (item) {
+                            return {
+                                Batch_id: item.Batch_id,
+                                Batch_timestamp: new Date(item.Batch_timestamp).toLocaleDateString(),
+                                Supplier_id: item.Supplier_id,
+                                Med_id: item.Med_id,
+                                Batch_qty: item.Batch_qty,
+                                Batch_expiry: new Date(item.Batch_expiry).toLocaleDateString()
+                            };
+                        });
+
+                        var allMeds = $scope.prescData.concat($scope.addedotcmeds);
+
+                        var prescriptionBatches = [];
+                        allMeds.forEach(function (med) {
+                            var medBatches = batches.filter(function (batch) {
+                                return batch.Med_id === med.medId;
+                            });
+                            prescriptionBatches.push({
+                                medId: med.medId,
+                                medQty: med.medQty,
+                                batches: medBatches
+                            });
+                        });
+                        
+                        var allValid = true;
+
+                        prescriptionBatches.forEach(function (prescriptionBatch) {
+                            var requiredQty = prescriptionBatch.medQty;
+                            var remainingQty = requiredQty;
+
+                            prescriptionBatch.batches.forEach(function (batch) {
+                                if (batch.Batch_qty >= remainingQty && new Date(batch.Batch_expiry) > new Date()) {
+                                    console.log(batch.Batch_id, batch.Batch_qty, remainingQty);
+                                    batch.Batch_qty -= remainingQty;
+                                    console.log(batch.Batch_qty);
+                                    $http.post('/api/update_batch', { Batch_id: batch.Batch_id, Batch_qty: batch.Batch_qty })
+                                        .then(function (response) {
+                                        })
+                                        .catch(function (error) {
+                                            console.error('Error updating batch quantity:', error);
+                                            allValid = false;
+                                        });
+                                    remainingQty = 0;
+                                } else if (new Date(batch.Batch_expiry) > new Date()) {
+                                    remainingQty -= batch.Batch_qty;
+                                    batch.Batch_qty = 0;
+                                    $http.post('/api/update_batch', { Batch_id: batch.Batch_id, Batch_qty: 0 })
+                                        .then(function (response) {
+                                        })
+                                        .catch(function (error) {
+                                            console.error('Error updating batch quantity:', error);
+                                            allValid = false;
+                                        });
+                                }
+                            });
+                            if (remainingQty > 0) {
+                                allValid = false;
+                            }
+                        });
+
+                        if (allValid) {
+                            $http.post('/api/add_bill', { Total_cost: totalCost, Presc_id: prescriptionId })
+                                .then(function (response) {
+                                    $scope.clearBillingTable
+                                    alert('Bill marked as paid. Bill ID: ' + response.data.Bill_id);
+                                })
+                                .catch(function (error) {
+                                    alert('Error marking bill as paid: ' + error.data.error);
+                                });
+                        } else {
+                            alert('Some batches are expired or have insufficient quantity. Cannot mark bill as paid.');
+                        }
                     })
                     .catch(function (error) {
-                        console.error('Error marking bill as paid:', error);
+                        alert('Error fetching batches: ' + error);
                     });
             };
 
