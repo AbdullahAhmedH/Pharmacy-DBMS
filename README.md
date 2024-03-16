@@ -14,11 +14,11 @@ This repository contains the code for a web-based Pharmacy Management System. Th
 - **Billing:** Users can calculate and mark bills as paid, including essential medicines and over-the-counter medicines. The system checks batch availability and expiry dates before marking the bill as paid.
 
 ## Screenshots
-- ![Batches Management](./BatchesDemo.png)
-- ![Billing Management](./BillingDemo.png)
-- ![Doctors Management](./DoctorsDemo.png)
-- ![Login Page](./login.png)
-- ![Notifications Management](./NotificationPage.png)
+- ![Batches Management](https://github.com/AbdullahAhmedH/Pharmacy-DBMS/blob/main/ReadMePics/BatchesDemo.png)
+- ![Billing Management](https://github.com/AbdullahAhmedH/Pharmacy-DBMS/blob/main/ReadMePics/DoctorsDemo.png)
+- ![Doctors Management](https://github.com/AbdullahAhmedH/Pharmacy-DBMS/blob/main/ReadMePics/BatchesDemo.png)
+- ![Login Page](https://github.com/AbdullahAhmedH/Pharmacy-DBMS/blob/main/ReadMePics/NotificationPage.png)
+- ![Notifications Management](https://github.com/AbdullahAhmedH/Pharmacy-DBMS/blob/main/ReadMePics/login.png)
 
 ## Technologies Used
 - **Frontend:** HTML, CSS, JavaScript, AngularJS
