@@ -13,6 +13,13 @@ This repository contains the code for a web-based Pharmacy Management System. Th
 - **Prescriptions Management:** Users can check patient IDs and bill prescriptions, including essential medicines and over-the-counter medicines. Prescription details include medicine ID, quantity, and cost.
 - **Billing:** Users can calculate and mark bills as paid, including essential medicines and over-the-counter medicines. The system checks batch availability and expiry dates before marking the bill as paid.
 
+## Screenshots
+- ![Batches Management](./BatchesDemo.png)
+- ![Billing Management](./BillingDemo.png)
+- ![Doctors Management](./DoctorsDemo.png)
+- ![Login Page](./login.png)
+- ![Notifications Management](./NotificationPage.png)
+
 ## Technologies Used
 - **Frontend:** HTML, CSS, JavaScript, AngularJS
 - **Backend:** Python (Flask)
@@ -24,12 +31,8 @@ This repository contains the code for a web-based Pharmacy Management System. Th
 1. Navigate to the `backend` folder in your terminal.
 2. Activate the virtual environment:
     - On Windows:
-    ```bash
-    .venv\Scripts\activate.ps1
-    ```
-    or open the terminal in .venv\Scripts and:
-    ```bash
-    ./activate.ps1
+    ```powershell
+    .venv\Scripts\Activate.ps1
     ```
     - On macOS and Linux:
     ```bash
@@ -40,7 +43,7 @@ This repository contains the code for a web-based Pharmacy Management System. Th
     pip install -r requirements.txt
     ```
 4. Open `app.py` and update the database connection settings (e.g., host, username, password) to match your MySQL database credentials.
-5. Run the Flask application by moving to backend folder and type:
+5. Run the Flask application:
     ```bash
     flask run
     ```
@@ -55,5 +58,3 @@ This repository contains the code for a web-based Pharmacy Management System. Th
 ### Running the Application
 1. Ensure your MySQL server is running.
 2. With both the backend and frontend components set up, you can access the Pharmacy Management System by opening a web browser and navigating to the appropriate URL, typically `http://localhost:port`, where `port` is the port number on which your Flask server is running (default is usually 5000).
-
-
